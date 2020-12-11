@@ -13,6 +13,7 @@ import (
 	"io"
 	"net"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -204,7 +205,9 @@ func (x *GoSNMP) sendOneRequest(packetOut *SnmpPacket,
 		}
 
 		x.logPrintf("SENDING PACKET: %#+v", *packetOut)
-		_, err = x.Conn.Write(outBuf)
+		addr := net.JoinHostPort(x.Target, strconv.Itoa(int(x.Port)))
+		tempRA, _ := net.ResolveUDPAddr("udp", addr)
+		_, err = x.Conn.WriteTo(outBuf, tempRA)
 		if err != nil {
 			continue
 		}

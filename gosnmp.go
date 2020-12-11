@@ -45,7 +45,7 @@ type GoSNMP struct {
 	mu sync.Mutex
 
 	// Conn is net connection to use, typically established using GoSNMP.Connect()
-	Conn net.Conn
+	Conn *net.UDPConn
 
 	// Target is an ipv4 address
 	Target string
@@ -280,9 +280,7 @@ func (x *GoSNMP) connect(networkSuffix string) error {
 // reconnect (needed for TCP)
 func (x *GoSNMP) netConnect() error {
 	var err error
-	addr := net.JoinHostPort(x.Target, strconv.Itoa(int(x.Port)))
-	dialer := net.Dialer{Timeout: x.Timeout}
-	x.Conn, err = dialer.DialContext(x.Context, x.Transport, addr)
+	x.Conn, err = net.ListenUDP("udp", nil)
 	return err
 }
 
